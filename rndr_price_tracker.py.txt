@@ -1,0 +1,71 @@
+
+#!/usr/bin/env python3
+
+"""
+Simple RNDR Price Tracker
+
+This script pulls RNDR price data from the CoinGecko API
+and prints the current price in USD.
+
+Optional:
+- runs continuously
+- alerts when price goes above or below chosen levels
+"""
+
+import requests
+import time
+
+URL = "https://api.coingecko.com/api/v3/simple/price"
+INTERVAL = 30  # seconds between updates
+
+ALERT_ABOVE = 10.0
+ALERT_BELOW = 3.0
+
+
+def get_rndr_price():
+    params = {
+        "ids": "render-token",
+        "vs_currencies": "usd"
+    }
+
+    response = requests.get(URL, params=params)
+
+    if response.status_code != 200:
+        print("Error fetching RNDR price")
+        return None
+
+    data = response.json()
+
+    if "render-token" not in data:
+        print("Price data not found")
+        return None
+
+    return data["render-token"]["usd"]
+
+
+def display_price(price):
+    print("\nRNDR Price Tracker")
+    print("------------------")
+    print("Current RNDR Price: $" + str(price))
+
+    if price > ALERT_ABOVE:
+        print("Alert: RNDR is above target level")
+
+    if price < ALERT_BELOW:
+        print("Alert: RNDR is below target level")
+
+
+def main():
+    print("Starting RNDR Price Tracker...")
+
+    while True:
+        price = get_rndr_price()
+
+        if price is not None:
+            display_price(price)
+
+        time.sleep(INTERVAL)
+
+
+if __name__ == "__main__":
+    main()
